@@ -1,129 +1,183 @@
-# Finance Dashboard API
+# Finance Dashboard Server
 
-Esta é a API para o Finance Dashboard, um sistema para gerenciamento de KPIs, produtos e transações financeiras.
+Servidor backend para gerenciamento financeiro, fornecendo APIs RESTful para controle de transações, categorias, usuários e relatórios. Ideal para dashboards financeiros pessoais ou corporativos.
 
-## 🚀 Tecnologias Utilizadas
+## ✨ Funcionalidades Principais
 
-- Node.js
-- Express.js
-- MongoDB + Mongoose
-- dotenv
-- CORS
-- Helmet
-- Morgan
-- Nodemon (para desenvolvimento)
+- Cadastro, autenticação e gerenciamento de usuários
+- CRUD de transações financeiras (receitas e despesas)
+- Gerenciamento de categorias de transações
+- Relatórios financeiros (por período, categoria, etc.)
+- Filtros e paginação de dados
+- Middleware de autenticação JWT
+- Logs e tratamento de erros
 
-## 📌 Instalação
+## 🛠️ Stack e Tecnologias
 
-Clone este repositório e instale as dependências:
+- **Node.js** (runtime)
+- **Express** (framework web)
+- **TypeScript** (tipagem estática)
+- **Prisma ORM** (acesso a banco de dados)
+- **PostgreSQL** (banco de dados relacional)
+- **JWT** (autenticação)
+- **dotenv** (variáveis de ambiente)
+- **Jest** (testes automatizados)
+- **ESLint/Prettier** (padronização de código)
 
-```sh
-git clone https://github.com/Cardosofiles/finance-control-server
-cd finance-dashboard-server
-npm install
-```
-
-## ⚙️ Configuração do Ambiente
-
-Crie um arquivo `.env` na raiz do projeto e adicione a variável de ambiente para conexão com o MongoDB:
-
-```env
-MONGO_URL=<sua-url-do-mongodb>
-PORT=9000
-```
-
-## ▶️ Executando o Servidor
-
-Para rodar o servidor em modo desenvolvimento:
-
-```sh
-npm run dev
-```
-
-O servidor estará disponível em `http://localhost:9000`.
-
-## 📌 Estrutura do Projeto
+## 📁 Estrutura de Pastas
 
 ```
 finance-dashboard-server/
-│── src/
-│   ├── routes/
-│   │   ├── kpi.js
-│   │   ├── product.js
-│   │   ├── transaction.js
-│   ├── services/
-│   │   ├── KPI.js
-│   │   ├── Product.js
-│   │   ├── Transaction.js
-│   ├── index.js
-│── package.json
-│── .env.example
-│── README.md
+├── src/
+│   ├── controllers/    # Lógica dos endpoints (ex: TransactionController)
+│   ├── middlewares/    # Middlewares (ex: autenticação, erros)
+│   ├── models/         # Modelos de dados (Prisma)
+│   ├── routes/         # Definição das rotas da API
+│   ├── services/       # Regras de negócio e integrações
+│   ├── utils/          # Funções utilitárias
+│   ├── config/         # Configurações (ex: banco, env)
+│   └── app.ts          # Inicialização do Express
+├── prisma/             # Schema e migrações do banco
+├── tests/              # Testes automatizados
+├── .env.example        # Exemplo de variáveis de ambiente
+├── package.json
+└── README.md
 ```
 
-## 📌 Rotas da API
+### Explicação das principais partes
 
-### 📊 KPI (Key Performance Indicators)
+- **controllers/**: Implementam a lógica dos endpoints da API.
+- **middlewares/**: Funções intermediárias para autenticação, logs, erros, etc.
+- **models/**: Definição dos modelos de dados via Prisma.
+- **routes/**: Organização das rotas e endpoints.
+- **services/**: Camada de negócio, separando lógica do controller.
+- **prisma/**: Schema do banco e arquivos de migração.
+- **tests/**: Testes unitários e de integração.
 
-- `GET /kpi/kpis` → Retorna a lista de KPIs.
+## 🚀 Instalação e Execução Local
 
-### 🛍️ Produtos
+### Pré-requisitos
 
-- `GET /product/products` → Retorna a lista de produtos.
+- Node.js >= 18.x
+- npm >= 9.x
+- PostgreSQL >= 13
 
-### 💳 Transações
+### Passos
 
-- `GET /transaction/transactions` → Retorna as transações mais recentes (limite de 50, ordenadas por data de criação descendente).
+1. **Clone o repositório**
 
-## 📌 Modelos de Dados (Mongoose)
+   ```bash
+   git clone https://github.com/seu-usuario/finance-dashboard-server.git
+   cd finance-dashboard-server
+   ```
 
-### KPI
+2. **Instale as dependências**
 
-```js
+   ```bash
+   npm install
+   ```
+
+3. **Configure as variáveis de ambiente**
+
+   - Copie o arquivo `.env.example` para `.env` e ajuste conforme seu ambiente:
+     ```
+     cp .env.example .env
+     ```
+   - Edite `.env` com as credenciais do banco e segredo JWT.
+
+4. **Execute as migrações do banco**
+
+   ```bash
+   npx prisma migrate deploy
+   ```
+
+5. **Inicie o servidor**
+   ```bash
+   npm run dev
+   ```
+   O servidor estará disponível em `http://localhost:3000`.
+
+## 🧪 Executando Testes
+
+```bash
+npm test
+```
+
+Os testes estão localizados na pasta `tests/` e cobrem controllers, services e integrações.
+
+## 📚 Exemplos de Uso dos Endpoints
+
+### Autenticação
+
+```http
+POST /api/auth/login
+Content-Type: application/json
+
 {
-  totalProfit: Number,
-  totalRevenue: Number,
-  totalExpenses: Number,
-  expensesByCategory: Map,
-  monthlyData: [
-    {
-      month: String,
-      revenue: Number,
-      expenses: Number,
-      operationalExpenses: Number,
-      nonOperationalExpenses: Number
-    }
-  ],
-  dailyData: [
-    {
-      date: String,
-      revenue: Number,
-      expenses: Number
-    }
-  ]
+  "email": "user@email.com",
+  "password": "senha123"
 }
 ```
 
-### Produto
+### Criar Transação
 
-```js
+```http
+POST /api/transactions
+Authorization: Bearer <token>
+Content-Type: application/json
+
 {
-  price: Number,
-  expense: Number,
-  transactions: [ObjectId]
+  "amount": 100.50,
+  "type": "income",
+  "categoryId": 1,
+  "description": "Salário",
+  "date": "2024-06-01"
 }
 ```
 
-### Transação
+### Listar Transações
 
-```js
-{
-  buyer: String,
-  amount: Number,
-  productIds: [ObjectId]
-}
+```http
+GET /api/transactions?startDate=2024-06-01&endDate=2024-06-30
+Authorization: Bearer <token>
 ```
 
-## 📌 Autor
+## 💡 Boas Práticas e Recomendações
 
-Desenvolvido por João Batista 🚀
+- Sempre utilize branches para novas features ou correções.
+- Mantenha o padrão de código seguindo ESLint e Prettier.
+- Adicione testes para novas funcionalidades.
+- Documente endpoints e regras de negócio relevantes.
+- Utilize variáveis de ambiente para dados sensíveis.
+- Revise as PRs antes de mergear.
+
+## 🤝 Contribuição
+
+1. Fork este repositório
+2. Crie sua branch (`git checkout -b feature/nome`)
+3. Commit suas alterações (`git commit -m 'feat: nova feature'`)
+4. Push para o branch (`git push origin feature/nome`)
+5. Abra um Pull Request
+
+---
+
+Para dúvidas ou sugestões, abra uma issue ou entre em contato!
+
+## 📫 Contato
+
+<div align="center">
+
+<a href="mailto:cardosofiles@outlook.com">
+  <img src="https://img.shields.io/badge/Email-0078D4?style=for-the-badge&logo=microsoftoutlook&logoColor=white" alt="Email"/>
+</a>
+<a href="https://www.linkedin.com/in/joaobatista-dev/" target="_blank">
+  <img src="https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn"/>
+</a>
+<a href="https://github.com/Cardosofiles" target="_blank">
+  <img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub"/>
+</a>
+<a href="https://cardosofiles.dev/" target="_blank">
+  <img src="https://img.shields.io/badge/Portfólio-222222?style=for-the-badge&logo=about.me&logoColor=white" alt="Portfólio"/>
+</a>
+
+</div>
